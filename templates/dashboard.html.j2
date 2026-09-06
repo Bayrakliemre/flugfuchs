@@ -574,15 +574,20 @@ document.getElementById("reset-link").addEventListener("click", resetFilters);
 
 const heroSearch = document.getElementById("hero-search");
 let heroSearchTimer = null;
+function runHeroSearch() {
+  applyFiltersAndRender();
+  if (heroSearch.value.trim()) {
+    document.getElementById("deal-grid").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
 heroSearch.addEventListener("input", () => {
   clearTimeout(heroSearchTimer);
-  heroSearchTimer = setTimeout(applyFiltersAndRender, 200);
+  heroSearchTimer = setTimeout(runHeroSearch, 500);
 });
 heroSearch.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     clearTimeout(heroSearchTimer);
-    applyFiltersAndRender();
-    document.getElementById("deal-grid").scrollIntoView({ behavior: "smooth", block: "start" });
+    runHeroSearch();
   }
 });
 

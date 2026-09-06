@@ -396,6 +396,20 @@ function renderStaticSection(gridId, sectionId, items) {
   if (section) section.hidden = items.length === 0;
 }
 
+// Fade-up reveal for cards/info-cards as they enter the viewport. Defined
+// before any render/filter calls below, since they call observeReveals().
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("is-visible");
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12 });
+function observeReveals() {
+  document.querySelectorAll(".reveal:not(.is-visible)").forEach(el => revealObserver.observe(el));
+}
+
 function populateSelectOptions() {
   const zielSelect = document.getElementById("ziel-select");
   const airportSelect = document.getElementById("airport-select");
@@ -500,18 +514,6 @@ function updateTopbar() {
 window.addEventListener("scroll", updateTopbar, { passive: true });
 updateTopbar();
 
-// Fade-up reveal for cards/info-cards as they enter the viewport.
-const revealObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add("is-visible");
-      revealObserver.unobserve(entry.target);
-    }
-  });
-}, { threshold: 0.12 });
-function observeReveals() {
-  document.querySelectorAll(".reveal:not(.is-visible)").forEach(el => revealObserver.observe(el));
-}
 observeReveals();
 </script>
 </body>

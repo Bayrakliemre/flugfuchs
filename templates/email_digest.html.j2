@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="de">
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,Helvetica,Arial,sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:24px 0;">
+<tr><td align="center">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;">
+  <tr>
+    <td style="background-color:#fbfbfd;padding:22px 24px;border-bottom:1px solid #e5e5e7;">
+      <div style="color:#1d1d1f;font-size:20px;font-weight:650;letter-spacing:-0.02em;">{{ product_emoji }} {{ product_name }}</div>
+      <div style="color:#6e6e73;font-size:13px;">{{ generated_at_label }}</div>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:20px 24px 4px;">
+      <p style="margin:0 0 16px;font-size:15px;color:#1f2328;">
+        Guten Morgen — <b>{{ deal_count }} Deals</b> heute, hier die Top {{ perlen|length }}:
+      </p>
+    </td>
+  </tr>
+  {% for deal in perlen %}
+  <tr>
+    <td style="padding:0 24px 16px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+             style="border:1px solid #e5e7eb;border-radius:8px;">
+        <tr>
+          <td style="padding:14px 16px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="font-size:16px;font-weight:600;color:#1f2328;">
+                  {{ deal.flag }} {{ deal.destination_city }}
+                  <div style="font-size:12px;font-weight:400;color:#6b7280;">{{ deal.destination_country }}</div>
+                </td>
+                <td align="right" style="font-size:20px;font-weight:700;color:#1f2328;">
+                  {{ deal.price | round | int }}€
+                </td>
+              </tr>
+            </table>
+            <div style="margin-top:8px;font-size:13px;color:#6b7280;">
+              {{ deal.date_range_label }} · {{ deal.origin_iata }} · {{ deal.duration_label }}{% if deal.has_bridge_day %} · 🌉 Brückentag{% endif %}
+            </div>
+            <div style="margin-top:10px;">
+              <a href="{{ deal.skyscanner_url }}"
+                 style="font-size:13px;font-weight:600;color:#0071e3;text-decoration:none;">
+                Skyscanner ↗
+              </a>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  {% endfor %}
+  <tr>
+    <td style="padding:8px 24px 24px;">
+      <p style="margin:0;font-size:13px;color:#6b7280;">
+        Das volle Dashboard mit allen {{ deal_count }} Deals und Filtern findest du im Anhang
+        (dashboard.html) — einfach öffnen im Browser.
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <td style="background:#f9fafb;padding:14px 24px;font-size:11px;color:#9ca3af;">
+      {{ product_name }} · täglicher Auto-Check · 7 Uhr per Mail
+    </td>
+  </tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>

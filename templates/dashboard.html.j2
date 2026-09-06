@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ product_name }}</title>
+<style>
+  :root {
+    --bg: #fbfbfd;
+    --card: #ffffff;
+    --card-border: rgba(0,0,0,0.07);
+    --hairline: rgba(0,0,0,0.08);
+    --text: #1d1d1f;
+    --text-dim: #6e6e73;
+    --text-faint: #86868b;
+    --blue: #0071e3;
+    --blue-strong: #0059b3;
+    --blue-bg: rgba(0,113,227,0.08);
+    --green: #248a3d;
+    --green-bg: rgba(52,199,89,0.12);
+    --orange: #b35900;
+    --orange-bg: rgba(255,149,0,0.12);
+    --purple: #7c2eae;
+    --purple-bg: rgba(175,82,222,0.12);
+    --accent: var(--blue);
+    --accent-strong: var(--blue-strong);
+    --pill-bg: #f5f5f7;
+    --shadow-card: 0 1px 2px rgba(0,0,0,0.04), 0 1px 8px rgba(0,0,0,0.04);
+    --shadow-hover: 0 10px 28px rgba(0,0,0,0.10);
+    --radius: 18px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px 64px; }
+
+  /* ---- Topbar ---- */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 22px 0; border-bottom: 1px solid var(--hairline); margin-bottom: 32px;
+    position: sticky; top: 0; z-index: 6; background: rgba(251,251,253,0.82); backdrop-filter: blur(14px);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-mark {
+    width: 38px; height: 38px; border-radius: 11px; display: flex; align-items: center;
+    justify-content: center; font-size: 19px; background: var(--blue-bg);
+  }
+  .brand-name { font-size: 20px; font-weight: 650; letter-spacing: -0.02em; }
+  .brand-sub { color: var(--text-dim); font-size: 12px; margin-top: 1px; }
+  .live-badge {
+    display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-dim);
+    background: var(--pill-bg); border-radius: 999px;
+    padding: 6px 12px;
+  }
+  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+
+  /* ---- KPI row ---- */
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; margin-bottom: 28px;
+    background: var(--hairline); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--hairline); }
+  .kpi { background: var(--card); padding: 18px 20px; }
+  .kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-faint); }
+  .kpi-value { font-size: 26px; font-weight: 650; margin-top: 4px; letter-spacing: -0.02em; }
+  .kpi:nth-child(2) .kpi-value { color: var(--blue); }
+
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 28px; }
+  .chip {
+    background: var(--pill-bg); border-radius: 999px;
+    padding: 6px 14px; font-size: 13px; color: var(--text-dim);
+  }
+
+  .info-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; margin-bottom: 48px; }
+  .info-card { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow-card); }
+  .info-card h3 { margin: 0 0 8px; font-size: 14px; font-weight: 650; }
+  .info-card p { margin: 0; font-size: 13px; color: var(--text-dim); line-height: 1.55; }
+  .info-card b { color: var(--text); font-weight: 600; }
+
+  section.deal-section { margin-bottom: 48px; }
+  .section-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+  section h2 { font-size: 21px; margin: 0; font-weight: 650; letter-spacing: -0.02em; }
+  .section-sub { color: var(--text-dim); font-size: 13px; margin: 0 0 18px; }
+
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .card {
+    position: relative;
+    background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 18px;
+    display: flex; flex-direction: column; gap: 9px;
+    box-shadow: var(--shadow-card);
+    transition: transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .18s ease;
+  }
+  .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .city { font-weight: 650; font-size: 16px; letter-spacing: -0.01em; }
+  .country { color: var(--text-dim); font-size: 12.5px; }
+  .price { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+  .badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .badge { border-radius: 6px; padding: 3px 8px; font-size: 11.5px; font-weight: 650; letter-spacing: 0.01em; }
+  .badge-teal { background: var(--green-bg); color: var(--green); }
+  .badge-amber { background: var(--orange-bg); color: var(--orange); }
+  .badge-rose { background: var(--purple-bg); color: var(--purple); }
+  .badge-neutral { background: var(--pill-bg); color: var(--text-dim); font-weight: 550; }
+  .meta-row { display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; color: var(--text-dim); }
+  .skyscanner-link { color: var(--accent); text-decoration: none; font-size: 12.5px; font-weight: 650; }
+  .skyscanner-link:hover { color: var(--accent-strong); text-decoration: underline; }
+
+  /* ---- Controls (sticky) ---- */
+  .controls {
+    position: sticky; top: 78px; z-index: 5;
+    background: rgba(255,255,255,0.86); backdrop-filter: blur(14px);
+    border: 1px solid var(--card-border); border-radius: var(--radius);
+    padding: 16px; margin-bottom: 24px; box-shadow: var(--shadow-card);
+  }
+  .controls-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; }
+  .control-group { display: flex; flex-direction: column; gap: 6px; }
+  .control-group label { font-size: 11px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.05em; }
+  .toggle-group { display: flex; gap: 2px; background: var(--pill-bg); border-radius: 9px; padding: 3px; }
+  .toggle-btn {
+    background: transparent; border: none; color: var(--text-dim);
+    border-radius: 7px; padding: 6px 12px; font-size: 13px; cursor: pointer; transition: all .12s ease;
+  }
+  .toggle-btn:hover { color: var(--text); }
+  .toggle-btn.active {
+    background: #ffffff; color: var(--text);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.14);
+  }
+  select {
+    background: var(--pill-bg); color: var(--text); border: none;
+    border-radius: 7px; padding: 6px 10px; font-size: 13px;
+  }
+  .checkbox-toggle { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-dim); cursor: pointer; }
+  .reset-link { color: var(--accent); font-size: 13px; cursor: pointer; text-decoration: none; }
+  .reset-link:hover { color: var(--accent-strong); }
+  .deal-counter { font-size: 13px; color: var(--text-dim); white-space: nowrap; font-weight: 600; }
+
+  .empty-state { color: var(--text-dim); font-size: 14px; padding: 32px; text-align: center; grid-column: 1 / -1; }
+
+  footer {
+    margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--hairline);
+    display: flex; justify-content: space-between; color: var(--text-faint); font-size: 12px; flex-wrap: wrap; gap: 8px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">{{ product_emoji }}</div>
+      <div>
+        <div class="brand-name">{{ product_name }}</div>
+        <div class="brand-sub">{{ region_label }} · Herbst / Winter {{ season_year }}</div>
+      </div>
+    </div>
+    <div class="live-badge"><span class="live-dot"></span>live · {{ generated_at_label }}</div>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-label">Deals</div><div class="kpi-value">{{ deal_count }}</div></div>
+    <div class="kpi"><div class="kpi-label">Günstigster</div><div class="kpi-value">{{ cheapest_price }}€</div></div>
+    <div class="kpi"><div class="kpi-label">Ø Preis</div><div class="kpi-value">{{ avg_price }}€</div></div>
+    <div class="kpi"><div class="kpi-label">Nächster Check</div><div class="kpi-value">7:00 Uhr</div></div>
+  </div>
+
+  <div class="chips">
+    <span class="chip">Nonstop</span>
+    <span class="chip">0 · 1 · Flex · Lang</span>
+    <span class="chip">max. {{ max_flight_duration_hours }} Std. Flug</span>
+    <span class="chip">bis {{ max_price_eur }} € · hin&amp;zurück</span>
+    <span class="chip">NRW-Feiertage eingerechnet</span>
+  </div>
+
+  <div class="info-cards">
+    <div class="info-card">
+      <h3>ℹ️ Urlaubstage</h3>
+      <p><b>0</b> = reines Sa–So-Wochenende. <b>1</b> = Fr–So oder Sa–Mo. <b>Flex</b> = 2–3 Urlaubstage.
+      <b>Lang</b> = bis zu {{ max_vacation_days }} Urlaubstage (z.B. 2 Wochen). NRW-Feiertage werden
+      automatisch abgezogen — Trips über einen Brückentag brauchen also weniger Urlaubstage als ihre
+      Kalenderlänge vermuten lässt.</p>
+    </div>
+    <div class="info-card">
+      <h3>🌉 Brückentage</h3>
+      <p>Diese Trips nutzen einen gesetzlichen Feiertag in NRW, sodass du für die gleiche Reisezeit
+      weniger Urlaubstage einsetzen musst — automatisch erkannt und unten separat hervorgehoben.</p>
+    </div>
+    <div class="info-card">
+      <h3>↗ Buchen</h3>
+      <p>Tipp auf eine Karte öffnet die <b>Skyscanner</b>-Suche für genau diese Strecke &amp; Tage
+      (nur Direktflüge, meist Basistarif/Handgepäck).</p>
+    </div>
+    <div class="info-card">
+      <h3>✈️ Airports</h3>
+      <p><b>{{ primary_airports|join(' &amp; ') }}</b> sind primär im Blick; {{ secondary_airports|join(', ') }}
+      werden täglich mitgescannt (~270 km um {{ region_label }}).</p>
+    </div>
+  </div>
+
+  <section class="deal-section">
+    <div class="section-head"><h2>Die Perlen</h2></div>
+    <p class="section-sub">echtes Wochenende, top Preis</p>
+    <div class="card-grid perlen-grid" id="perlen-grid"></div>
+  </section>
+
+  <section class="deal-section" id="bridge-section">
+    <div class="section-head"><h2>🌉 Brückentage</h2></div>
+    <p class="section-sub">weniger Urlaubstage dank Feiertag</p>
+    <div class="card-grid bridge-grid" id="bridge-grid"></div>
+  </section>
+
+  <section class="deal-section" id="long-section">
+    <div class="section-head"><h2>🧳 Langtrips</h2></div>
+    <p class="section-sub">für die längere Auszeit, bis ~2 Wochen</p>
+    <div class="card-grid long-grid" id="long-grid"></div>
+  </section>
+
+  <div class="controls">
+    <div class="controls-row">
+      <div class="control-group">
+        <label>Urlaubstage</label>
+        <div class="toggle-group" id="category-toggle">
+          <button class="toggle-btn active" data-category="alle">Alle</button>
+          <button class="toggle-btn" data-category="0">0</button>
+          <button class="toggle-btn" data-category="1">1</button>
+          <button class="toggle-btn" data-category="flex">Flex</button>
+          <button class="toggle-btn" data-category="long">Lang</button>
+        </div>
+      </div>
+      <div class="control-group">
+        <label>Ziel</label>
+        <select id="ziel-select"><option value="alle">Alle Ziele</option></select>
+      </div>
+      <div class="control-group">
+        <label>Airport</label>
+        <select id="airport-select"><option value="alle">Alle Airports</option></select>
+      </div>
+      <div class="control-group">
+        <label>Max €</label>
+        <select id="max-price-select">
+          <option value="50">50</option>
+          <option value="75">75</option>
+          <option value="100">100</option>
+          <option value="125">125</option>
+          <option value="{{ max_price_eur }}" selected>{{ max_price_eur }}</option>
+          <option value="200">200</option>
+          <option value="999999">egal</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label>Sortieren</label>
+        <select id="sort-select">
+          <option value="price_asc">Preis ↑</option>
+          <option value="price_desc">Preis ↓</option>
+          <option value="duration_asc">Flugdauer</option>
+          <option value="date_asc">Abflugdatum</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label>&nbsp;</label>
+        <label class="checkbox-toggle"><input type="checkbox" id="sunny-checkbox"> ☀ nur Sonne</label>
+      </div>
+      <div class="control-group">
+        <label>&nbsp;</label>
+        <label class="checkbox-toggle"><input type="checkbox" id="bridge-checkbox"> 🌉 nur Brückentage</label>
+      </div>
+      <div class="control-group">
+        <label>&nbsp;</label>
+        <span class="reset-link" id="reset-link">zurücksetzen</span>
+      </div>
+      <div class="control-group">
+        <label>&nbsp;</label>
+        <span class="deal-counter" id="deal-counter">0 Deals</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-grid" id="deal-grid"></div>
+
+  <footer>
+    <span>{{ product_name }}</span>
+    <span>täglicher Auto-Check · 7 Uhr per Mail</span>
+  </footer>
+
+</div>
+
+<script>
+const DEALS = {{ deals_json | safe }};
+const PERLEN = {{ perlen_json | safe }};
+const BRIDGE_DAYS = {{ bridge_days_json | safe }};
+const LONG_TRIPS = {{ long_trips_json | safe }};
+
+function badgeClass(category) {
+  if (category === "flex") return "badge-amber";
+  if (category === "long") return "badge-rose";
+  return "badge-teal";
+}
+function badgeLabel(d) {
+  if (d.vacation_days_category === "flex") return "Flex";
+  if (d.vacation_days_category === "long") return "Lang · " + d.vacation_days_count + " Tage";
+  return d.vacation_days_count + (d.vacation_days_count === 1 ? " Tag" : " Tage");
+}
+
+function dealCardHtml(d) {
+  return `
+    <div class="card">
+      <div class="card-top">
+        <div>
+          <div class="city">${d.flag} ${d.destination_city}</div>
+          <div class="country">${d.destination_country}</div>
+        </div>
+        <div class="price">${Math.round(d.price)}€</div>
+      </div>
+      <div class="badges">
+        <span class="badge ${badgeClass(d.vacation_days_category)}">${badgeLabel(d)}</span>
+        <span class="badge badge-neutral">${d.origin_iata}</span>
+        ${d.is_sunny ? '<span class="badge badge-neutral">☀</span>' : ''}
+        ${d.has_bridge_day ? '<span class="badge badge-neutral">🌉</span>' : ''}
+      </div>
+      <div class="meta-row">
+        <span>${d.date_range_label}</span>
+        <span>${d.duration_label}</span>
+      </div>
+      <div class="meta-row">
+        <span></span>
+        <a class="skyscanner-link" href="${d.skyscanner_url}" target="_blank" rel="noopener">Skyscanner ↗</a>
+      </div>
+    </div>`;
+}
+
+function renderStaticSection(gridId, sectionId, items) {
+  const grid = document.getElementById(gridId);
+  grid.innerHTML = items.map(dealCardHtml).join("");
+  const section = document.getElementById(sectionId);
+  if (section) section.hidden = items.length === 0;
+}
+
+function populateSelectOptions() {
+  const zielSelect = document.getElementById("ziel-select");
+  const airportSelect = document.getElementById("airport-select");
+
+  const cities = [...new Set(DEALS.map(d => d.destination_city))].sort();
+  for (const city of cities) {
+    const opt = document.createElement("option");
+    opt.value = city; opt.textContent = city;
+    zielSelect.appendChild(opt);
+  }
+
+  const airports = [...new Set(DEALS.map(d => d.origin_iata))].sort();
+  for (const airport of airports) {
+    const opt = document.createElement("option");
+    opt.value = airport; opt.textContent = airport;
+    airportSelect.appendChild(opt);
+  }
+}
+
+function getState() {
+  const activeCategoryBtn = document.querySelector("#category-toggle .toggle-btn.active");
+  return {
+    category: activeCategoryBtn ? activeCategoryBtn.dataset.category : "alle",
+    ziel: document.getElementById("ziel-select").value,
+    airport: document.getElementById("airport-select").value,
+    maxPrice: parseFloat(document.getElementById("max-price-select").value),
+    sort: document.getElementById("sort-select").value,
+    sunnyOnly: document.getElementById("sunny-checkbox").checked,
+    bridgeOnly: document.getElementById("bridge-checkbox").checked,
+  };
+}
+
+function applyFiltersAndRender() {
+  const state = getState();
+  let filtered = DEALS.filter(d => {
+    if (state.category !== "alle" && d.vacation_days_category !== state.category) return false;
+    if (state.ziel !== "alle" && d.destination_city !== state.ziel) return false;
+    if (state.airport !== "alle" && d.origin_iata !== state.airport) return false;
+    if (d.price > state.maxPrice) return false;
+    if (state.sunnyOnly && !d.is_sunny) return false;
+    if (state.bridgeOnly && !d.has_bridge_day) return false;
+    return true;
+  });
+
+  filtered.sort((a, b) => {
+    switch (state.sort) {
+      case "price_desc": return b.price - a.price;
+      case "duration_asc": return a.duration_minutes - b.duration_minutes;
+      case "date_asc": return a.depart_date.localeCompare(b.depart_date);
+      default: return a.price - b.price;
+    }
+  });
+
+  const grid = document.getElementById("deal-grid");
+  grid.innerHTML = filtered.length
+    ? filtered.map(dealCardHtml).join("")
+    : '<div class="empty-state">Keine Deals für diese Filter gefunden.</div>';
+
+  document.getElementById("deal-counter").textContent = `${filtered.length} Deals`;
+}
+
+function resetFilters() {
+  document.querySelectorAll("#category-toggle .toggle-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.category === "alle");
+  });
+  document.getElementById("ziel-select").value = "alle";
+  document.getElementById("airport-select").value = "alle";
+  document.getElementById("max-price-select").value = "{{ max_price_eur }}";
+  document.getElementById("sort-select").value = "price_asc";
+  document.getElementById("sunny-checkbox").checked = false;
+  document.getElementById("bridge-checkbox").checked = false;
+  applyFiltersAndRender();
+}
+
+document.getElementById("category-toggle").addEventListener("click", (e) => {
+  const btn = e.target.closest(".toggle-btn");
+  if (!btn) return;
+  document.querySelectorAll("#category-toggle .toggle-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  applyFiltersAndRender();
+});
+["ziel-select", "airport-select", "max-price-select", "sort-select"].forEach(id => {
+  document.getElementById(id).addEventListener("change", applyFiltersAndRender);
+});
+document.getElementById("sunny-checkbox").addEventListener("change", applyFiltersAndRender);
+document.getElementById("bridge-checkbox").addEventListener("change", applyFiltersAndRender);
+document.getElementById("reset-link").addEventListener("click", resetFilters);
+
+populateSelectOptions();
+renderStaticSection("perlen-grid", null, PERLEN);
+renderStaticSection("bridge-grid", "bridge-section", BRIDGE_DAYS);
+renderStaticSection("long-grid", "long-section", LONG_TRIPS);
+applyFiltersAndRender();
+</script>
+</body>
+</html>

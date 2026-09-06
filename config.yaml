@@ -1,0 +1,44 @@
+product:
+  name: "FlugFuchs"
+  emoji: "🦊"
+
+airports:
+  primary: [DTM, CGN]
+  # All airports with scheduled passenger service within ~270km of Bielefeld
+  # (computed via haversine distance), except Lübeck (LBC, no scheduled
+  # service since ~2016) and Enschede/Lelystad (rejected by Travelpayouts
+  # as "not flightable" -- confirmed via a live test call).
+  secondary: [DUS, NRN, HAJ, PAD, FMO, KSF, BRE, GRQ, HAM, ERF, FRA, EIN, MST, AMS]
+
+filters:
+  nonstop_only: true
+  max_flight_duration_hours: 4
+  max_price_eur: 150
+  # NRW-holiday-adjusted vacation days a trip may cost. 0/1/2-3 are the
+  # 0/1/Flex buckets; anything from 4 up to this cap falls into "Lang"
+  # (roughly up to 2 weeks with a couple of bridge days factored in).
+  max_vacation_days: 11
+
+sunny_destinations:
+  countries: [ES, PT, IT, GR, MA, EG, TR, HR, CY, MT]
+
+travelpayouts:
+  market: de
+  currency: eur
+  limit_per_origin: 500
+  reference_data_refresh_days: 30
+
+email:
+  recipient: emre.bayrakli@dbgcampus.de
+  sender: "FlugFuchs <onboarding@resend.dev>"
+  subject_template: "🦊 {count} neue Flugdeals – {date}"
+
+paths:
+  dashboard_output: output/index.html
+  cache_dir: data/cache
+  history_dir: data/history
+  latest_deals_json: data/latest_deals.json
+  reference_dir: data/reference
+  log_file: logs/run.log
+
+region_label: "Region Bielefeld"

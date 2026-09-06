@@ -1,0 +1,10 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+data/cache/
+data/history/
+data/reference/
+data/latest_deals.json
+output/
+logs/

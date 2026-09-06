@@ -68,6 +68,21 @@
   .hero-stat span { display: block; font-size: 26px; font-weight: 600; letter-spacing: -0.01em; }
   .hero-stat small { font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.05em; }
 
+  .hero-search {
+    position: relative; max-width: 420px; margin-top: 36px;
+  }
+  .hero-search-icon {
+    position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+    color: rgba(255,255,255,0.5); font-size: 15px; pointer-events: none;
+  }
+  .hero-search input {
+    width: 100%; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18);
+    color: #fff; border-radius: 999px; padding: 12px 16px 12px 40px; font-size: 14px;
+    outline: none; transition: background .18s ease, border-color .18s ease;
+  }
+  .hero-search input::placeholder { color: rgba(255,255,255,0.45); }
+  .hero-search input:focus { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.4); }
+
   /* ---- Topbar (overlay, solidifies on scroll) ---- */
   .topbar {
     position: fixed; top: 0; left: 0; right: 0; z-index: 20;
@@ -120,13 +135,13 @@
 
   .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
   .card {
-    position: relative;
+    position: relative; color: inherit; text-decoration: none;
     background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 18px;
     display: flex; flex-direction: column; gap: 9px;
     box-shadow: var(--shadow-card);
-    transition: transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .18s ease;
+    transition: transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .18s ease, border-color .18s ease;
   }
-  .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+  .card:hover, .card:focus-visible { transform: translateY(-3px); box-shadow: var(--shadow-hover); border-color: rgba(0,0,0,0.14); }
 
   .card-top { display: flex; justify-content: space-between; align-items: flex-start; }
   .city { font-weight: 650; font-size: 16px; letter-spacing: -0.01em; }
@@ -139,8 +154,23 @@
   .badge-rose { background: var(--purple-bg); color: var(--purple); }
   .badge-neutral { background: var(--pill-bg); color: var(--text-dim); font-weight: 550; }
   .meta-row { display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; color: var(--text-dim); }
-  .skyscanner-link { color: var(--accent); text-decoration: none; font-size: 12.5px; font-weight: 650; }
-  .skyscanner-link:hover { color: var(--accent-strong); text-decoration: underline; }
+
+  /* Detail panel: collapsed by default, expands on hover/keyboard-focus --
+     the touch-device equivalent is the platform's own "first tap = hover,
+     second tap = follow the link" behavior on an <a> whose look changes
+     on :hover, so this needs no separate JS for mobile. */
+  .card-detail {
+    max-height: 0; opacity: 0; overflow: hidden;
+    transition: max-height .25s ease, opacity .2s ease, margin-top .25s ease;
+  }
+  .card:hover .card-detail, .card:focus-visible .card-detail { max-height: 60px; opacity: 1; margin-top: 2px; }
+  .card-detail-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-faint); padding-top: 8px; border-top: 1px solid var(--hairline); }
+  .cta-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12.5px; font-weight: 650; color: var(--accent);
+  }
+  .cta-row .arrow { transition: transform .18s ease; }
+  .card:hover .cta-row .arrow, .card:focus-visible .cta-row .arrow { transform: translateX(3px); }
 
   /* ---- Controls (sticky) ---- */
   .controls {
@@ -177,9 +207,35 @@
     margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--hairline);
     display: flex; justify-content: space-between; color: var(--text-faint); font-size: 12px; flex-wrap: wrap; gap: 8px;
   }
+
+  /* ---- Scroll rails: your scroll progress as a flight from top (departure)
+     to bottom (arrival) -- decorative, desktop-only, no layout impact. ---- */
+  .scroll-rail {
+    position: fixed; top: 4vh; bottom: 4vh; width: 1px; z-index: 1; pointer-events: none;
+    background: repeating-linear-gradient(to bottom, var(--hairline) 0 4px, transparent 4px 13px);
+  }
+  .scroll-rail.left { left: 32px; }
+  .scroll-rail.right { right: 32px; }
+  .rail-endpoint {
+    position: absolute; left: 50%; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--text-faint); transform: translate(-50%, -50%);
+  }
+  .rail-endpoint.top { top: 0; }
+  .rail-endpoint.bottom { bottom: 0; top: auto; }
+  .rail-marker {
+    position: absolute; left: 50%; top: 0; font-size: 15px; line-height: 1;
+    transform: translate(-50%, -50%) rotate(90deg); will-change: top;
+  }
+  .scroll-rail.right .rail-marker { transform: translate(-50%, -50%) rotate(90deg) scaleX(-1); }
+  @media (max-width: 1180px) {
+    .scroll-rail { display: none; }
+  }
 </style>
 </head>
 <body>
+
+<div class="scroll-rail left"><span class="rail-endpoint top"></span><span class="rail-marker">✈️</span><span class="rail-endpoint bottom"></span></div>
+<div class="scroll-rail right"><span class="rail-endpoint top"></span><span class="rail-marker">✈️</span><span class="rail-endpoint bottom"></span></div>
 
 <div class="topbar" id="topbar">
   <div class="topbar-inner">
@@ -212,6 +268,11 @@
       <div class="hero-stat"><span>{{ deal_count }}</span><small>Deals live</small></div>
       <div class="hero-stat"><span>{{ cheapest_price }}€</span><small>günstigster Fund</small></div>
       <div class="hero-stat"><span>7:00</span><small>nächster Check</small></div>
+    </div>
+    <div class="hero-search">
+      <span class="hero-search-icon">⌕</span>
+      <input type="text" id="hero-search" list="hero-cities" placeholder="Stadt oder Land suchen, z.B. Barcelona oder Italien …" autocomplete="off">
+      <datalist id="hero-cities"></datalist>
     </div>
   </div>
 </section>
@@ -363,8 +424,9 @@ function badgeLabel(d) {
 }
 
 function dealCardHtml(d) {
+  const perDay = Math.round(d.price / Math.max(1, d.trip_length_days));
   return `
-    <div class="card reveal">
+    <a class="card reveal" href="${d.skyscanner_url}" target="_blank" rel="noopener">
       <div class="card-top">
         <div>
           <div class="city">${d.flag} ${d.destination_city}</div>
@@ -382,11 +444,11 @@ function dealCardHtml(d) {
         <span>${d.date_range_label}</span>
         <span>${d.duration_label}</span>
       </div>
-      <div class="meta-row">
-        <span></span>
-        <a class="skyscanner-link" href="${d.skyscanner_url}" target="_blank" rel="noopener">Skyscanner ↗</a>
+      <div class="card-detail">
+        <div class="card-detail-row"><span>≈ ${perDay}€ pro Tag</span><span>Nonstop</span></div>
       </div>
-    </div>`;
+      <div class="cta-row"><span>Skyscanner</span><span class="arrow">↗</span></div>
+    </a>`;
 }
 
 function renderStaticSection(gridId, sectionId, items) {
@@ -413,12 +475,20 @@ function observeReveals() {
 function populateSelectOptions() {
   const zielSelect = document.getElementById("ziel-select");
   const airportSelect = document.getElementById("airport-select");
+  const heroCities = document.getElementById("hero-cities");
 
   const cities = [...new Set(DEALS.map(d => d.destination_city))].sort();
   for (const city of cities) {
     const opt = document.createElement("option");
     opt.value = city; opt.textContent = city;
     zielSelect.appendChild(opt);
+  }
+
+  const countries = [...new Set(DEALS.map(d => d.destination_country))].sort();
+  for (const name of [...cities, ...countries]) {
+    const opt = document.createElement("option");
+    opt.value = name;
+    heroCities.appendChild(opt);
   }
 
   const airports = [...new Set(DEALS.map(d => d.origin_iata))].sort();
@@ -433,6 +503,7 @@ function getState() {
   const activeCategoryBtn = document.querySelector("#category-toggle .toggle-btn.active");
   return {
     category: activeCategoryBtn ? activeCategoryBtn.dataset.category : "alle",
+    search: document.getElementById("hero-search").value.trim().toLowerCase(),
     ziel: document.getElementById("ziel-select").value,
     airport: document.getElementById("airport-select").value,
     maxPrice: parseFloat(document.getElementById("max-price-select").value),
@@ -445,6 +516,7 @@ function getState() {
 function applyFiltersAndRender() {
   const state = getState();
   let filtered = DEALS.filter(d => {
+    if (state.search && !(d.destination_city + " " + d.destination_country).toLowerCase().includes(state.search)) return false;
     if (state.category !== "alle" && d.vacation_days_category !== state.category) return false;
     if (state.ziel !== "alle" && d.destination_city !== state.ziel) return false;
     if (state.airport !== "alle" && d.origin_iata !== state.airport) return false;
@@ -476,6 +548,7 @@ function resetFilters() {
   document.querySelectorAll("#category-toggle .toggle-btn").forEach(btn => {
     btn.classList.toggle("active", btn.dataset.category === "alle");
   });
+  document.getElementById("hero-search").value = "";
   document.getElementById("ziel-select").value = "alle";
   document.getElementById("airport-select").value = "alle";
   document.getElementById("max-price-select").value = "{{ max_price_eur }}";
@@ -499,6 +572,20 @@ document.getElementById("sunny-checkbox").addEventListener("change", applyFilter
 document.getElementById("bridge-checkbox").addEventListener("change", applyFiltersAndRender);
 document.getElementById("reset-link").addEventListener("click", resetFilters);
 
+const heroSearch = document.getElementById("hero-search");
+let heroSearchTimer = null;
+heroSearch.addEventListener("input", () => {
+  clearTimeout(heroSearchTimer);
+  heroSearchTimer = setTimeout(applyFiltersAndRender, 200);
+});
+heroSearch.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    clearTimeout(heroSearchTimer);
+    applyFiltersAndRender();
+    document.getElementById("deal-grid").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+});
+
 populateSelectOptions();
 renderStaticSection("perlen-grid", null, PERLEN);
 renderStaticSection("bridge-grid", "bridge-section", BRIDGE_DAYS);
@@ -513,6 +600,18 @@ function updateTopbar() {
 }
 window.addEventListener("scroll", updateTopbar, { passive: true });
 updateTopbar();
+
+// Scroll rails: the two side markers travel from departure (top) to
+// arrival (bottom) in step with how far down the page you've scrolled.
+const railMarkers = document.querySelectorAll(".rail-marker");
+function updateRails() {
+  const max = document.documentElement.scrollHeight - window.innerHeight;
+  const fraction = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+  railMarkers.forEach(m => { m.style.top = (fraction * 100) + "%"; });
+}
+window.addEventListener("scroll", updateRails, { passive: true });
+window.addEventListener("resize", updateRails);
+updateRails();
 
 observeReveals();
 </script>
